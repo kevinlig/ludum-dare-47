@@ -67,9 +67,9 @@ Material:
     - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 1
-    - _ScaleRatioB: 1
-    - _ScaleRatioC: 1
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 0.73125
+    - _ScaleRatioC: 0.73125
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -113,9 +113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: WorkSans-Regular SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 810991304
   material: {fileID: -5237059471157414819}
-  materialHashCode: 0
+  materialHashCode: 599939907
   m_Version: 1.1.0
   m_SourceFontFileGUID: e5a9c663f464d4f6aaa0abaa8430355a
   m_SourceFontFile_EditorRef: {fileID: 0}

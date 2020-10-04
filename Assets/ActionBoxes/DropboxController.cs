@@ -35,7 +35,9 @@ public class DropboxController : MonoBehaviour
     void SubscribeToData() {
         GameManager.Instance.currentNavUnit
             .Subscribe((int navUnit) => {
-                boxNumber = Mathf.FloorToInt((navUnit + (boxOffset * 5)) / 5) + 1;
+                if (navUnit % 5 == 0 || Mathf.Abs(navUnit - prevNavUnit) > 1) {
+                    boxNumber = Mathf.FloorToInt((navUnit + (boxOffset * 5)) / 5) + 1;
+                }
                 AnimateToNavUnit(prevNavUnit, navUnit);
             });
     }
@@ -63,7 +65,7 @@ public class DropboxController : MonoBehaviour
         }
         else if (change < 0 && prevBox != null) {
             // moving backward
-            animPos = Vector3.Lerp(originalPosition, prevPos, lerpFraction);
+            animPos = Vector3.Lerp(prevPos, originalPosition, lerpFraction);
             Tween.Position(transform, animPos, 0.75f, 0, null, Tween.LoopType.None, null, FinishAnimation);
         }
     }

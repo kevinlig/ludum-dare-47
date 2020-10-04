@@ -12,7 +12,7 @@ public class AstroManager : Singleton<AstroManager>
     private List<string> shuffledNames;
 
     public float navUnitSize = 1f;
-    public float planetRadius = 1f;
+    public int navUnitsPerDeg = 10;
 
     public GameObject starPrefab;
     public int starCount = 32;
@@ -26,7 +26,7 @@ public class AstroManager : Singleton<AstroManager>
         // shuffle the name list so we get random names each time and there are no repeats
         shuffledNames = ShuffleNames();
 
-        planetRadius = 4f * 180f * navUnitSize;
+        navUnitsPerDeg = UnityEngine.Random.Range(8, 25);
 
         starCount = UnityEngine.Random.Range(24, 48);
 

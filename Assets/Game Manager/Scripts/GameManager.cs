@@ -9,10 +9,13 @@ public class GameManager : Singleton<GameManager>
     public FloatReactiveProperty latitude = new FloatReactiveProperty(0);
     public FloatReactiveProperty longitude = new FloatReactiveProperty(0);
     public IntReactiveProperty currentNavUnit = new IntReactiveProperty(0);
+    public IntReactiveProperty fuelAvailable = new IntReactiveProperty(3);
+    public StringReactiveProperty currentView = new StringReactiveProperty("cockpit");
     // keep all observers in sync using subject instead of individual subscriptions
     public BehaviorSubject<Vector2> playerLocation;
 
     public BehaviorSubject<StarController> activeStar;
+    public BehaviorSubject<Dictionary<int, int>> deliveryDestinations;
 
     void Awake() {
         CreateObservables();
@@ -31,9 +34,40 @@ public class GameManager : Singleton<GameManager>
             });
 
         activeStar = new BehaviorSubject<StarController>(null);
+        deliveryDestinations = new BehaviorSubject<Dictionary<int, int>>(GenerateDeliveries());
+    }
+
+    Dictionary<int, int> GenerateDeliveries() {
+        int count = UnityEngine.Random.Range(3, 6);
+        // we are only doing northeastern hemisphere
+        int maxNavUnit = 90 * AstroManager.Instance.navUnitsPerDeg;
+
+        Dictionary<int, int> destinations = new Dictionary<int, int>();
+        while (destinations.Count < count) {
+            int destination = UnityEngine.Random.Range(1, maxNavUnit + 1);
+            if (!destinations.ContainsValue(destination)) {
+                destinations.Add(destination, 1);
+            }
+        }
+
+        return destinations;
     }
 
     public void SetActiveStar(StarController active) {
         activeStar.OnNext(active);
+    }
+
+    public void MoveByOne(int direction) {
+        currentNavUnit.SetValueAndForceNotify(currentNavUnit.Value + (1 * direction));
+    }
+
+    public void DeliverTo(int boxNumber) {
+        Dictionary<int, int> deliveries = deliveryDestinations.Value;
+        deliveries[boxNumber] = 0;
+        deliveryDestinations.OnNext(deliveries);
+    }
+
+    public void UpdateFuel(int newFuel) {
+        fuelAvailable.SetValueAndForceNotify(newFuel);
     }
 }
