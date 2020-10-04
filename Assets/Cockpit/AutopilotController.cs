@@ -12,6 +12,8 @@ public class AutopilotController : MonoBehaviour
     public TMP_InputField inputField;
     public CockpitCamera cockpitCamera;
 
+    public GameObject transitionAnim;
+
     private Regex inputRegex = new Regex("[^0-9.]");
     private Regex validationRegex = new Regex("^[0-9]*(\\.[0-9]+)?$");
 
@@ -62,6 +64,10 @@ public class AutopilotController : MonoBehaviour
         }
 
         GameManager.Instance.FastTravel(amount);
-        cockpitCamera.CloseAutopilot();
+        transitionAnim.SetActive(true);
+         Observable.Timer(System.TimeSpan.FromSeconds(1.5f))
+            .Subscribe((x) => {
+                cockpitCamera.CloseAutopilot();
+            });
     }
 }
