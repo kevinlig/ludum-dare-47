@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using UniRx;
 using TMPro;
 
@@ -26,6 +27,11 @@ public class EndController : MonoBehaviour
         } else {
             ShowFailure();
         }
+
+        Observable.Timer(System.TimeSpan.FromSeconds(5f))
+            .Subscribe((x) => {
+                SceneManager.LoadScene("MenuScene");
+            });
     }
 
     void ShowSuccess() {

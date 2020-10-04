@@ -47,7 +47,10 @@ public class DeliverButton : MonoBehaviour
         int dropboxNum = Mathf.FloorToInt(currentPos / 5f) + 1;
 
         Dictionary<int, int> deliveries = GameManager.Instance.deliveryDestinations.Value;
-        if (deliveries[dropboxNum] != 1) {
+        if (!deliveries.ContainsKey(dropboxNum)) {
+            isDeliverable = false;
+            GlobalUI.Instance.SetAlert("[ERROR]: There is nothing to deliver here.");
+        } else if (deliveries[dropboxNum] != 1) {
             GlobalUI.Instance.SetAlert("[INFO]: Already delivered!");
             return;
         }
