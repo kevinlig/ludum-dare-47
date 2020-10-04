@@ -33,20 +33,18 @@ public class SightReductionCamera : MonoBehaviour
     void Look() {
         cameraRotation.y += Input.GetAxis("Mouse X") * speed;
         cameraRotation.x += -Input.GetAxis("Mouse Y") * speed;
-        cameraRotation.x = Mathf.Clamp(cameraRotation.x, -90f, 90f);
-        cameraRotation.y = Mathf.Clamp(cameraRotation.y, -90, 90f);
+        cameraRotation.x = Mathf.Clamp(cameraRotation.x, -90f, 100f);
+        // cameraRotation.y = Mathf.Clamp(cameraRotation.y, -120, 120f);
         transform.eulerAngles = new Vector3(cameraRotation.x, cameraRotation.y, 0);
     }
 
     void CheckHits() {
         RaycastHit hit;
-        Ray ray = srCamera.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 8)) {
+        if (Physics.Raycast(srCamera.transform.position, srCamera.transform.forward, out hit, Mathf.Infinity, 1 << 8)) {
             GameObject starObj = hit.collider.transform.gameObject;
             StarController controller = starObj.GetComponent<StarController>();
-            StarData data = controller.data;
-            GameManager.Instance.SetActiveStar(data);
+            GameManager.Instance.SetActiveStar(controller);
         } else {
             GameManager.Instance.SetActiveStar(null);
         }

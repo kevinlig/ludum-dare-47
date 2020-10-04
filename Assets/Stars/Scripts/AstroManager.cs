@@ -28,10 +28,9 @@ public class AstroManager : Singleton<AstroManager>
 
         planetRadius = 4f * 180f * navUnitSize;
 
-        starCount = UnityEngine.Random.Range(32, 48);
+        starCount = UnityEngine.Random.Range(24, 48);
 
         // generate a star count
-        // starCount = UnityEngine.Random.Range(4, 10);
         for (int i = 0; i < starCount; i++) {
             GenerateStar(i);
         }

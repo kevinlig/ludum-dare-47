@@ -8,10 +8,11 @@ public class GameManager : Singleton<GameManager>
 {
     public FloatReactiveProperty latitude = new FloatReactiveProperty(0);
     public FloatReactiveProperty longitude = new FloatReactiveProperty(0);
+    public IntReactiveProperty currentNavUnit = new IntReactiveProperty(0);
     // keep all observers in sync using subject instead of individual subscriptions
     public BehaviorSubject<Vector2> playerLocation;
 
-    public BehaviorSubject<StarData> activeStar;
+    public BehaviorSubject<StarController> activeStar;
 
     void Awake() {
         CreateObservables();
@@ -29,10 +30,10 @@ public class GameManager : Singleton<GameManager>
                 playerLocation.OnNext(coords);
             });
 
-        activeStar = new BehaviorSubject<StarData>(null);
+        activeStar = new BehaviorSubject<StarController>(null);
     }
 
-    public void SetActiveStar(StarData active) {
+    public void SetActiveStar(StarController active) {
         activeStar.OnNext(active);
     }
 }
