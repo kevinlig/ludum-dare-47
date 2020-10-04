@@ -18,7 +18,9 @@ public class GameManager : Singleton<GameManager>
     public IntReactiveProperty fuelAvailable = new IntReactiveProperty(3);
     public StringReactiveProperty currentView = new StringReactiveProperty("cockpit");
     public LongReactiveProperty timeRemaining = new LongReactiveProperty(60 * 8);
+    public int totalTime = 60 * 8;
     public LongReactiveProperty fuelTimeRemaining = new LongReactiveProperty(0);
+    public IntReactiveProperty deliveriesRemaining = new IntReactiveProperty(0);
     // keep all observers in sync using subject instead of individual subscriptions
     public BehaviorSubject<Vector2> playerLocation;
 
@@ -60,6 +62,8 @@ public class GameManager : Singleton<GameManager>
 
         currentNavUnit
             .Subscribe(CalculateLatitudeFromNavUnit);
+
+        HandleEndGame();
     }
 
     Dictionary<int, int> GenerateDeliveries() {
@@ -69,12 +73,14 @@ public class GameManager : Singleton<GameManager>
 
         Dictionary<int, int> destinations = new Dictionary<int, int>();
         while (destinations.Count < count) {
-            int destination = UnityEngine.Random.Range(1, maxNavUnit + 1);
-            if (!destinations.ContainsValue(destination)) {
-                destinations.Add(destination, 1);
+            int navUnit = UnityEngine.Random.Range(1, maxNavUnit + 1);
+            int nearestBox = Mathf.RoundToInt(navUnit / 5f) + 1;
+            if (!destinations.ContainsValue(nearestBox)) {
+                destinations.Add(nearestBox, 1);
             }
         }
 
+        deliveriesRemaining.SetValueAndForceNotify(count);
         return destinations;
     }
 
@@ -91,6 +97,20 @@ public class GameManager : Singleton<GameManager>
     void CalculateLatitudeFromNavUnit(int navUnit) {
         float degrees = (float) navUnit / AstroManager.Instance.navUnitsPerDeg;
         latitude.SetValueAndForceNotify(degrees);
+    }
+
+    void HandleEndGame() {
+        timeRemaining
+            .Where((x) => x == 0)
+            .Subscribe((x) => {
+                currentView.SetValueAndForceNotify("endScreen");
+            });
+
+        deliveriesRemaining
+            .Where((x) => x == 0)
+            .Subscribe((x) => {
+                currentView.SetValueAndForceNotify("endScreen");
+            });
     }
 
     public void SetActiveStar(StarController active) {
@@ -114,6 +134,7 @@ public class GameManager : Singleton<GameManager>
         deliveries[boxNumber] = 0;
         GlobalUI.Instance.SetAlert(string.Format("[SUCCESS]: Delivered to dropbox {0}!", boxNumber));
         deliveryDestinations.OnNext(deliveries);
+        deliveriesRemaining.SetValueAndForceNotify(deliveriesRemaining.Value - 1);
     }
 
     public void UpdateFuel(int newFuel) {
@@ -122,7 +143,7 @@ public class GameManager : Singleton<GameManager>
 
     public void StartGameTimer() {
         Observable.Interval(TimeSpan.FromSeconds(1))
-            .TakeWhile((x) => timeRemaining.Value - 1 >= 0)
+            .TakeWhile((x) => timeRemaining.Value - 1 >= 0 && deliveriesRemaining.Value > 0)
             .Subscribe((x) => {
                 timeRemaining.SetValueAndForceNotify(timeRemaining.Value - 1);
             });
@@ -146,7 +167,7 @@ public class GameManager : Singleton<GameManager>
         // determine how many nav units this is
         int distance = Mathf.FloorToInt(AstroManager.Instance.navUnitsPerDeg * degrees);
         int newNavPos = currentNavUnit.Value + distance;
-        int newFuel = fuelAvailable.Value - Mathf.CeilToInt(degrees / 20f);
+        int newFuel = fuelAvailable.Value - Mathf.CeilToInt(degrees / 5f);
         currentNavUnit.SetValueAndForceNotify(newNavPos);
         fuelAvailable.SetValueAndForceNotify(newFuel);
     }

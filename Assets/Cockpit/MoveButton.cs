@@ -18,13 +18,22 @@ public class MoveButton : MonoBehaviour
         lowEmission = fullEmission / 5f;
 
         GameManager.Instance.fuelAvailable
-            .Subscribe(HandleButtonLight);
+            .Subscribe((int fuel) => {
+                bool on = fuel > 0;
+                HandleButtonLight(on);
+            });
+
+        GameManager.Instance.latitude
+            .Subscribe((float lat) => {
+                bool on = lat < 90 && lat >= 0;
+                HandleButtonLight(on);
+            });
     }
 
-    void HandleButtonLight(int fuelAmount) {
+    void HandleButtonLight(bool on) {
         float emissionAmount = fullEmission;
 
-        if (fuelAmount <= 0) {
+        if (!on) {
             emissionAmount = lowEmission;
         }
 

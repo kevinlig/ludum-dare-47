@@ -125,6 +125,12 @@ public class CockpitCamera : MonoBehaviour
             GlobalUI.Instance.SetAlert("[ERROR]: Out of fuel! Wait to recharge before moving.");
             return;
         }
+
+        if (GameManager.Instance.latitude.Value + 1 > 90) {
+            GlobalUI.Instance.SetAlert("[ERROR]: You are at the end of your delivery area!");
+            return;
+        }
+
         GameManager.Instance.MoveByOne(1);
     }
 }

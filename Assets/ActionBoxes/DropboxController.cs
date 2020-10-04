@@ -47,7 +47,14 @@ public class DropboxController : MonoBehaviour
         prevNavUnit = next;
         if (Mathf.Abs(change) != 1) {
             // don't animate
-            transform.position = originalPosition;
+            Vector3 partialPos = originalPosition;
+            float partialFraction = (next % 5f) / 5f;
+            if (partialFraction <= 0 || partialFraction >= 1f) {
+                partialPos = originalPosition;
+            } else {
+                partialPos = Vector3.Lerp(originalPosition, nextPos, partialFraction);
+            }
+            transform.position = partialPos;
             UpdateNumber();
             return;
         }

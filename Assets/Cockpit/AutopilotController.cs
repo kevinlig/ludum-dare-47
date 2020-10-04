@@ -45,7 +45,7 @@ public class AutopilotController : MonoBehaviour
         }
 
         amount = float.Parse(input);
-        float maxDistance = GameManager.Instance.fuelAvailable.Value * 20f;
+        float maxDistance = GameManager.Instance.fuelAvailable.Value * 5f;
         if (amount > maxDistance) {
             validationLabel.text = "[ERROR]: Insufficient fuel.";
             return;
@@ -53,6 +53,11 @@ public class AutopilotController : MonoBehaviour
 
         if (amount <= 0f) {
             validationLabel.text = "[ERROR]: Invalid input.";
+            return;
+        }
+
+        if (amount + GameManager.Instance.latitude.Value > 90f) {
+            validationLabel.text = "[ERROR]: This is beyond your delivery area.";
             return;
         }
 
