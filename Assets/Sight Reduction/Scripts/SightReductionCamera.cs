@@ -28,6 +28,16 @@ public class SightReductionCamera : MonoBehaviour
             isLocked = true;
             Cursor.lockState = CursorLockMode.Locked;
         }
+
+        if (Input.GetKey(KeyCode.X)) {
+            GameManager.Instance.currentView
+                .SetValueAndForceNotify("cockpit");
+        }
+    }
+
+    void OnEnable() {
+        isLocked = true;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Look() {

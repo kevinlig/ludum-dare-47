@@ -8,10 +8,13 @@ public class CockpitCamera : MonoBehaviour
     public float speed = 4f;
     public bool isLocked = true;
     public TextMeshProUGUI helperLabel;
+    public DeliverButton deliverButton;
+    public GameObject autopilotHud;
     Vector2 cameraRotation = Vector2.zero;
     private Camera cockpitCamera;
     private string lastButtonType = "";
     private bool blockClicks = false;
+    private bool autopilotOpen = false;
     void Start() {
         Cursor.lockState = CursorLockMode.Confined;
         cockpitCamera = gameObject.GetComponent<Camera>();
@@ -19,7 +22,7 @@ public class CockpitCamera : MonoBehaviour
 
     void Update()
     {
-        if (isLocked) {
+        if (isLocked && !autopilotOpen) {
             Look();
             CheckHits();
             if (Input.GetKey(KeyCode.Escape)) {
@@ -32,10 +35,19 @@ public class CockpitCamera : MonoBehaviour
             }
         }
 
-        if (!isLocked && Input.GetMouseButtonDown(0)) {
+        if (!isLocked && Input.GetMouseButtonDown(0) && !autopilotOpen) {
             isLocked = true;
             Cursor.lockState = CursorLockMode.Confined;
         }
+    }
+
+    void OnEnable() {
+        isLocked = true;
+        Cursor.lockState = CursorLockMode.Confined;
+    }
+
+    void OnDisable() {
+        blockClicks = false;
     }
 
     void Look() {
@@ -63,15 +75,56 @@ public class CockpitCamera : MonoBehaviour
     void HandleClick() {
         blockClicks = true;
         StartCoroutine(DebounceClicks());
-        if (lastButtonType.Equals("forward")) {
-            GameManager.Instance.MoveByOne(1);
-        } else if (lastButtonType.Equals("reverse")) {
-            GameManager.Instance.MoveByOne(-1);
+
+        switch (lastButtonType) {
+            case "forward":
+                HandleMove();
+                break;
+
+            case "reverse":
+                GameManager.Instance.MoveByOne(-1);
+                break;
+            
+            case "sextant":
+                GameManager.Instance.currentView.SetValueAndForceNotify("sightReduction");
+                break;
+
+            case "deliver":
+                deliverButton.HandleDelivery();
+                break;
+
+            case "autopilot":
+                OpenAutopilot();
+                break;
         }
     }
 
     IEnumerator DebounceClicks() {
         yield return new WaitForSeconds(0.8f);
         blockClicks = false;
+    }
+
+    void OpenAutopilot() {
+        autopilotOpen = true;
+        isLocked = false;
+        Cursor.lockState = CursorLockMode.None;
+
+        autopilotHud.SetActive(true);
+    }
+    public void CloseAutopilot() {
+        autopilotHud.SetActive(false);
+
+        autopilotOpen = false;
+        isLocked = true;
+        Cursor.lockState = CursorLockMode.Confined;
+    }
+
+    void HandleMove() {
+        float fuel = GameManager.Instance.fuelAvailable.Value;
+        if (fuel <= 0) {
+            GlobalUI.Instance.SetAlert("[ERROR]: Out of fuel! Wait to recharge before moving.");
+            return;
+        }
+        GameManager.Instance.MoveByOne(1);
     }
 }
